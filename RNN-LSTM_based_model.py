@@ -3,6 +3,8 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 import tensorflow.keras as keras
 import matplotlib.pyplot as plt
+from sklearn.metrics import classification_report
+from sklearn import metrics
 
 DATA_PATH = "feature_dataset_1.json"
 
@@ -93,7 +95,7 @@ def build_model(input_shape):
     model.add(keras.layers.Dropout(0.3))
 
     # output layer
-    model.add(keras.layers.Dense(10, activation='softmax'))
+    model.add(keras.layers.Dense(2, activation='softmax'))
 
     return model
 
@@ -124,3 +126,36 @@ if __name__ == "__main__":
     # evaluate model on test set
     test_loss, test_acc = model.evaluate(X_test, y_test, verbose=2)
     print('\nTest accuracy:', test_acc)
+#%%
+    seq_predictions_total=model.predict(X_test)
+    print(seq_predictions_total.shape)
+    seq_predictions_total=np.transpose(seq_predictions_total)[1]
+    print(seq_predictions_total.shape) 
+    # Applying transformation to get binary values predictions with 0.5 as thresold
+    seq_predictions = list(map(lambda x: 0 if x<0.5 else 1, seq_predictions_total))
+    seq_predictions = np.array(seq_predictions)
+#%%
+    # add some other stats based on confusion matrix
+    clf_report = classification_report(y_test, seq_predictions)
+    print(clf_report)
+     # auc information
+    fpr, tpr, _ = metrics.roc_curve(y_test,  seq_predictions_total)
+    auc = metrics.roc_auc_score(y_test, seq_predictions_total)
+    
+    # log loss
+    log_loss = metrics.log_loss(y_test, seq_predictions_total)
+    plt.plot(fpr, tpr, label="{}, AUC={:.3f}".format("RNN-LSTM", auc))
+        
+    plt.plot([0,1], [0,1], color='orange', linestyle='--')
+    
+    plt.xticks(np.arange(0.0, 1.1, step=0.1))
+    plt.xlabel("False Positive Rate", fontsize=15)
+    
+    plt.yticks(np.arange(0.0, 1.1, step=0.1))
+    plt.ylabel("True Positive Rate", fontsize=15)
+    
+    plt.title('ROC Curve Analysis', fontweight='bold', fontsize=15)
+    plt.legend(prop={'size':13}, loc='lower right')
+    
+    plt.savefig("roc-auc",dpi=300, bbox_inches='tight')
+    plt.show()
