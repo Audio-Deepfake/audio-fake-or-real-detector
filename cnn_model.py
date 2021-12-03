@@ -13,8 +13,9 @@ import tensorflow.keras as keras
 import matplotlib.pyplot as plt
 from sklearn.metrics import classification_report
 from sklearn import metrics
+
 #%%
-DATA_PATH = "feature_dataset_1.json"
+DATA_PATH = "feature_dataset_2.json"
 
 
 def load_data(data_path):
@@ -144,10 +145,8 @@ def predict(model, X, y):
 
     print("Target: {}, Predicted label: {}".format(y, predicted_index))
 
-
-if __name__ == "__main__":
-
-    # get train, validation, test splits
+def model():
+     # get train, validation, test splits
     X_train, X_validation, X_test, y_train, y_validation, y_test = prepare_datasets(0.25, 0.2)
 
     # create network
@@ -192,7 +191,13 @@ if __name__ == "__main__":
      # auc information
     fpr, tpr, _ = metrics.roc_curve(y_test,  seq_predictions_total)
     auc = metrics.roc_auc_score(y_test, seq_predictions_total)
-    
+    # metrics
+    metrics_var = []
+    metrics_var.append(fpr)
+    metrics_var.append(tpr)
+    metrics_var.append(auc)
+    metrics_var.append("Convolutional Neural Network")
+
     # log loss
     log_loss = metrics.log_loss(y_test, seq_predictions_total)
     plt.plot(fpr, tpr, label="{}, AUC={:.3f}".format("Convolutional neural network", auc))
@@ -208,5 +213,12 @@ if __name__ == "__main__":
     plt.title('ROC Curve Analysis', fontweight='bold', fontsize=15)
     plt.legend(prop={'size':13}, loc='lower right')
     
-    plt.savefig("roc-auc",dpi=300, bbox_inches='tight')
+    plt.savefig("roc-auc--cnn",dpi=300, bbox_inches='tight')
     plt.show()
+    
+    return metrics_var
+    
+
+if __name__ == "__main__":
+
+   meta = model()

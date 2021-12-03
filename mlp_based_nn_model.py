@@ -8,7 +8,7 @@ from sklearn import metrics
 import matplotlib.pyplot as plt
 
 # path to json file that stores MFCCs and genre labels for each processed segment
-DATA_PATH = "feature_dataset_1.json"
+DATA_PATH = "feature_dataset_2.json"
 
 def load_data(data_path):
     """Loads training dataset from json file.
@@ -30,9 +30,9 @@ def load_data(data_path):
     return  X, y, data
 
 np.random.seed(45)
-if __name__ == "__main__":
 
-    # load data
+def model():
+        # load data
     X, y, data = load_data(DATA_PATH)
     
     # create train/test split
@@ -85,9 +85,14 @@ if __name__ == "__main__":
     fpr, tpr, _ = metrics.roc_curve(y_test,  seq_predictions_total)
     auc = metrics.roc_auc_score(y_test, seq_predictions_total)
     
+    metrics_var = []
+    metrics_var.append(fpr)
+    metrics_var.append(tpr)
+    metrics_var.append(auc)
+    metrics_var.append("Multilayer Perceptron")
     # log loss
     log_loss = metrics.log_loss(y_test, seq_predictions_total)
-    plt.plot(fpr, tpr, label="{}, AUC={:.3f}".format("Convolutional neural network", auc))
+    plt.plot(fpr, tpr, label="{}, AUC={:.3f}".format("Multi layer perceptron", auc))
         
     plt.plot([0,1], [0,1], color='orange', linestyle='--')
     
@@ -100,5 +105,10 @@ if __name__ == "__main__":
     plt.title('ROC Curve Analysis', fontweight='bold', fontsize=15)
     plt.legend(prop={'size':13}, loc='lower right')
     
-    plt.savefig("roc-auc",dpi=300, bbox_inches='tight')
+    plt.savefig("roc-auc-mlp",dpi=300, bbox_inches='tight')
     plt.show()
+    
+    return metrics_var
+if __name__ == "__main__":
+    
+    meta = model()
